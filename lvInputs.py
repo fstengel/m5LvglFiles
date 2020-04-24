@@ -79,14 +79,17 @@ class DigitalInput(object):
 
 # Class to simulate a key press using a physical button (aka DigitalInput)
 class KeyButton(object):
-    def __init__(self, pin, keyboard = None, key = None, debug = False):
+    def __init__(self, pin, keyboard = None, key = None, debounce = False, debug = False):
         self._press = False
         self._changed = False
         self._debug = debug
+        self._debounce = debounce
         self.setPin(pin)
         self.data = None
         self._keyboard = keyboard
         self._key = key
+        if self._debug:
+            print("KeyButton Init {}, debounce: {}".format(pin,self._debounce))
     
     def _cb(self, pin, press):
         if self._press != press:
@@ -116,7 +119,7 @@ class KeyButton(object):
     def setPin(self, pin):
         # DigitalIput : the class that monitors/debounces pin
         self._pin = pin
-        self._input = DigitalInput(pin, self._cb)
+        self._input = DigitalInput(pin, self._cb, debounce = self._debounce, debug = self._debug)
 
 # Class making a keyboard input driver
 class Keyboard(object):
@@ -125,6 +128,8 @@ class Keyboard(object):
         self._press = False
         self._debug = debug
         self._changed = False
+        if self._debug:
+            print("Keyboard Init")
     
     def keyAction(self, key, press):
         if key != self._key or press != self._press:
