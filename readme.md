@@ -1,8 +1,35 @@
 # Basic input device library for an M5Stack
 
+## Installation
+
+The best way is to create a folder named `m5inputs` in the `/lib` folder (to be created if it does not exist) and copy files `__init__.py`, `m5encoder.py`, `keypad.py` and `m5buttons.py` in that folder.
+
+Check from REPL
+
+```Python
+import sys
+print(sys.path)
+```
+
+if `['', '/lib']` (or `['/lib', '']`) is printed then all is ok. If not, check in `boot.py` (or `main.py`) if `sys.path` is modified. If not, add a few lines to `boot.py` to the effect:
+
+* the previous script printed `['']`. add the lines:
+```Python
+import sys
+sys.path.append(['/lib'])
+```
+* the previous script printed `['/lib', '']`, then you could wand to change the order:
+```Python
+import sys
+sys.path[0]=''
+sys.path[1]='/lib'
+```
+
+* the previous script printed nothing, then I am stumped. Something could be wrong with your microPython install...
+
 ## Usage
 
-`from m5input.m5encoder import M5ButtonEncoder`
+`from m5inputs.m5encoder import M5ButtonEncoder`
 `from m5inputs.keypad  import KeyButton, Keypad`
 `from m5inputs.m5buttons immport M5Buttons`
 
