@@ -2,7 +2,7 @@
 
 ## Installation
 
-The best way is to create a folder named `m5inputs` in the `/lib` folder (to be created if it does not exist) and copy files `__init__.py`, `m5encoder.py`, `keypad.py` and `m5buttons.py` in that folder.
+The best way is to create a folder named `m5inputs` in the `/lib` folder (to be created if it does not exist) and copy files `__init__.py`, `base.py`, `m5encoder.py`, `keypad.py` and `m5buttons.py` (the contents of the `m5inputs` folder on github) in that folder.
 
 ## The search path
 
