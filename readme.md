@@ -1,5 +1,19 @@
 # Basic input device library for an M5Stack with LittlevGL
 
+## Prerequisites
+
+An M5Stack with microPython+LittlevGL bindings. Beware I use the last version of the bindings for V6.x (there is a small diffrence with the prototype of `indev_set_button_points`).
+
+See threads:
+
+* https://forum.littlevgl.com/t/hardware-button-multiple-points/1953
+* https://forum.littlevgl.com/t/error-lv-bindings-driver-generic-modlvindev-c/2016/15
+
+TBD:
+
+* write in a separate document a HOWTO build uPY+lvgl using the latest...
+
+ 
 ## Installation
 
 The best way is to create a folder named `m5inputs` in the `/lib` folder (to be created if it does not exist) and copy files `__init__.py`, `base.py`, `m5encoder.py`, `keypad.py` and `m5buttons.py` (the contents of the `m5inputs` folder on github) in that folder.
