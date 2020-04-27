@@ -1,10 +1,12 @@
-# Basic input device library for an M5Stack
+# Basic input device library for an M5Stack with LittlevGL
 
 ## Installation
 
 The best way is to create a folder named `m5inputs` in the `/lib` folder (to be created if it does not exist) and copy files `__init__.py`, `m5encoder.py`, `keypad.py` and `m5buttons.py` in that folder.
 
-Check from REPL
+## The search path
+
+You may want to check if the package is in the search path. Check from REPL:
 
 ```Python
 import sys
@@ -18,14 +20,15 @@ if `['', '/lib']` (or `['/lib', '']`) is printed then all is ok. If not, check i
 import sys
 sys.path.append(['/lib'])
 ```
-* the previous script printed `['/lib', '']`, then you could wand to change the order:
+* the previous script printed `['/lib', '']`, then you may want to change the order:
 ```Python
 import sys
 sys.path[0]=''
 sys.path[1]='/lib'
 ```
-
 * the previous script printed nothing, then I am stumped. Something could be wrong with your microPython install...
+
+The list `sys.path` contains the folders that will be explored by microPython to find a module. AFAIK `['', '/lib']` means first the current folder then `/lib`.
 
 ## Usage
 
