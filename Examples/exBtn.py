@@ -49,7 +49,8 @@ lv.scr_load(scr)
 
 # the buttons
 m5bt = M5Buttons(debug = True)
-# I only link the firs three buttons...
+
+# I only link the first three buttons...
 m5bt.setLinkedButtons(btn1, btn2, btn3)
 m5bt.registerDriver()
 

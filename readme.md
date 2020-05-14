@@ -100,7 +100,7 @@ Only `POINTER`s do not make use of a group: I am adding the feature to the base 
 it with a derived class. Too cumbersome?
 
 * `@property group`: the group associated with this device
-* `@group.setter`: the setter for the group
+* `@group.setter`: the setter for the group. Only has an effect *after* the driver has been registered.
 
 No points  (only `BUTTON`s make use of it...)
 
@@ -148,7 +148,7 @@ Methods:
 * `registerDriver()`: registers the input device and returns the driver
 * `getDriver()`: retrieves the driver after registering it if necessary.
 * `@property group`: the group associated with this device
-* `@group.setter`: the setter for the group
+* `@group.setter`: the setter for the group. Only has an effect *after* the driver has been registered.
 
 See example: `exKbd`for a working example.
 
@@ -182,9 +182,11 @@ Methods:
 * `registerDriver()`: registers the input device and returns the driver
 * `getDriver()`: retrieves the driver after registering it if necessary.
 * `@property group`: the group associated with this device
-* `@group.setter`: the setter for the group
+* `@group.setter`: the setter for the group. Only has an effect *after* the driver has been registered.
 
 See example: `exEnc` for a working example.
+
+The `step` parameter controls how long one has to press button A/C in order to have the encoder register a diff. See exEnc and play with the step parameter.
 
 TBD:
 
@@ -239,5 +241,10 @@ All based on the same script: four buttons labelled 1 to 4 on the top of the scr
 
 The relevant bits of code are in the last dozen lines of code.
 
+## Coming next
+
+### I2CNavKey and navkey
+
+A class to (partly) manage this navkey https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus. Very WIP. Not documented nor tested. Will be (re)packaged
 
 

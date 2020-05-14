@@ -48,8 +48,12 @@ btn4.align(btn3, lv.ALIGN.OUT_RIGHT_TOP, 10, 0)
 lv.scr_load(scr)
 
 # ButtonEncoder
-enc = M5ButtonEncoder(debug = True)
+# step set at 5. Try with 7-10 to see how long one has to press (loooooonger)
+enc = M5ButtonEncoder(step = 5, debug = True)
 driv = enc.registerDriver()
+
+# register the device driver:
+enc.registerDriver()
 
 # Create a group
 group = lv.group_create()
@@ -57,9 +61,9 @@ lv.group_add_obj(group, btn1)
 lv.group_add_obj(group, btn2)
 lv.group_add_obj(group, btn3)
 lv.group_add_obj(group, btn4)
-kbd.group = group
 
-# register the device driver:
-enc.registerDriver()
+# add it: only possible after registering the driver...
+enc.group = group
+
 
 print("Setup finished...")
