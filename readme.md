@@ -223,7 +223,7 @@ TBD.
 
 * Handle multiple presses/depresses.
 
-### Pubilc items
+### Public items
 
 Among others:
 
@@ -243,8 +243,8 @@ The relevant bits of code are in the last dozen lines of code.
 
 ## Coming next
 
-### I2CNavKey and navkey
+### i2cnavkey and navkey
 
-A class to (partly) manage this navkey https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus. Very WIP. Not documented nor tested. Will be (re)packaged
+A pair of classes (`I2CNavKey` and `NavKey`) to (partly) manage this navkey https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus. Very WIP. Not documented nor tested. `I2CNavKey` is generic and is used to get/send info to the navkey. `NavKey` will be a hybrid input device in lvgl. Will be (re)packaged
 
 

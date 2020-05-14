@@ -142,7 +142,7 @@ class NavKey(BaseDevice):
     def encoderGroup(self):
         return self._encGroup
 
-    @keyGroup.setter
+    @encoderGroup.setter
     def encoderGroup(self, value):
         self._encGroup = value
         if self._encGroup is not None:
