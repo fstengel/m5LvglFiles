@@ -68,7 +68,8 @@ class Keypad(BaseDevice):
         if self._pressed:
             # I should not assume a physical key exists !
             if self._pKey is not None and self._pKey.pressed:
-                pass
+                self._pressed = True
+                self._changed = False
             else:
                 self._changed = True
                 self._pressed = False
@@ -77,6 +78,7 @@ class Keypad(BaseDevice):
                 if k.pressed:
                     self._changed = True
                     self._key = k.key
+                    self._pKey = k
                     self._pressed = True
             
             
