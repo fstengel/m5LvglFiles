@@ -136,6 +136,10 @@ class BaseDevice(object):
         return self._pressed
     
     @property
+    def peekChanged(self):
+        return self._changed
+    
+    @property
     def changed(self):
         ch = self._changed
         self._changed = False

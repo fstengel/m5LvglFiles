@@ -8,6 +8,9 @@ BUTTON_A_PIN = const(39)
 BUTTON_B_PIN = const(38)
 BUTTON_C_PIN = const(37)
 
+N = const(3)
+MASK = const((1<<N)-1)
+
 pt0 = lv.point_t()
 pt0.x = 0
 pt0.y = 0
@@ -47,6 +50,8 @@ class M5Buttons(BaseDevice):
         self._points = [pt0, pt0, pt0] # lvgl will simulate a press at (0,0) if no logical object is linked
         self._driver = None
         self._devType = lv.INDEV_TYPE.BUTTON
+        self._state = 0
+        self._left = 0
     
     # Name? setLinkedObjects?
     def setLinkedButtons(self, btA, btB, btC):
@@ -59,20 +64,50 @@ class M5Buttons(BaseDevice):
         self._linkedButtons[btnId] = bt
         self.updatePoints()
     
-    def update(self):
-        p = False
-        bt = self._bt
-        for i in range(3):
-            phy = self._phyButtons[i]
-            if phy.pressed:
-                p = True
-                bt = i
-                break
-        if self._pressed != p or self._bt != bt:
-            self._changed = True
-        self._pressed = p
-        self._bt = bt
+#     def updateOLD(self):
+#         p = False
+#         bt = self._bt
+#         for i in range(3):
+#             phy = self._phyButtons[i]
+#             if phy.pressed:
+#                 p = True
+#                 bt = i
+#                 break
+#         if self._pressed != p or self._bt != bt:
+#             self._changed = True
+#         self._pressed = p
+#         self._bt = bt
     
+    def update(self):
+        st = 0
+        for i in range(N):
+            phy = self._phyButtons[i]
+            m = 1<<i
+            if phy.pressed:
+                if not (self._state & m):
+                    self._left = self._left | m
+                    self._state = self._state | m
+            else:
+                if self._state & m:
+                    self._left = self._left | m
+                    self._state = self._state & (MASK^m)
+        for i in range(N):
+            m = 1<<i
+            if self._left & m:
+                self._changed = True
+                self._left = self._left & (MASK^m)
+                self._bt = i
+                if self._state & m:
+                    self._pressed = True
+                else:
+                    self._pressed = False
+                return
+        self._changed = False
+    
+    @property
+    def btn(self):
+        return self._bt
+        
     # Override
     def _reader(self, drv, data):
         self.update()

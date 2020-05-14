@@ -87,7 +87,7 @@ Methods:
 
 * `update()`: *needs to be overridden*. Has to modify/update self._pressed, self._changed.
 * `@property pressed`: if something is pressed.
-* `@property changed`: something recently changed.
+* `@property changed`: something recently changed. Is reset after read.
 * `_reader`: the callback. *Needs to be overridden*.
 * `getReader()`: returns the callback used to register the device.
 
@@ -110,6 +110,7 @@ to reflect the actual device type.
 TBD.
 * Render a few classes really private
 * `update()` should reall be private...
+* write a `@property` peekChanged: to see if chnged recently without resetting it
 
 For an actual use case see the code for `M5ButtonEncoder` in the `m5encoder` package.
 
@@ -141,8 +142,8 @@ Methods:
 * `addKey(key)`: adds the key KeyButton object to the keyboard
 * `update()`: does the work. It scans the keys to find the first one that is pressed (if one is)
    and updates the various internal variables. Real crappy implementation.
-* `@property currentKey`: the key code currently pressed (or the last pressed)
-* `@property pressed`: if the current key is pressed
+* `@property currentKey`: the key code currently pressed (or the last pressed). Initally `0`.
+* `@property pressed`: if the current key is pressed. Initially `False`.
 * `@property changed`: something recently changed in the key: changed key. (de)Pressed key. Cleared to false after read
 * `getReader()`: returns the callback used to register the device.
 * `registerDriver()`: registers the input device and returns the driver
@@ -176,7 +177,7 @@ Methods:
 
 * `update()`: does the work. Calculates the current difference and sees if anything has changed.
 * `@property diff`: the diff sent by the encoder. The higher `step` is, the longer one has to press A/C to move.
-* `@property pressed`: if the encoder key (key B) is pressed
+* `@property pressed`: if the encoder key (key B) is pressed. Initially `False`.
 * `@property changed`: something recently changed in encoder: a move, pressed
 * `getReader()`: returns the callback used to register the device.
 * `registerDriver()`: registers the input device and returns the driver
@@ -208,8 +209,9 @@ Methods:
 pressed/released then `btA` recieves the corrsponding event through pressing/releasing in its center.
 if the logical object is `None`, then point (0,0) will be acted upon.
 * `setLinkeButton(btnId, bt)`: links physical button id `bntId` (0 for button A etc.) and object `bt`. Same idea as above.
-* `update()`: does the work. Calculates the current difference and sees if anything has changed.
-* `@property pressed`: if a button is pressed
+* `update()`: does the work. Checks which button is pressed/released.
+* `@property pressed`: if a button is pressed. Initially `False`
+* `@property btn`: the id of the last button which changed state. Initially `0`.
 * `@property changed`: something recently changed in encoder: a button is pressed or the button has changed
 * `getReader()`: returns the callback used to register the device.
 * `registerDriver()`: registers the input device and returns the driver
@@ -221,14 +223,15 @@ See example `exBtn` for a working example.
 
 TBD.
 
-* Handle multiple presses/depresses.
+* Handle multiple presses/depresses. WIP.
+* write a `@property` to get last button pressed/released (`@property btn`: possible name)
 
 ### Public items
 
 Among others:
 
-* Function `getCenter(obj)` that calculates the center of the lvgl  object `obj`. Returns a lvgl `point_t`.
-* `pt0` an lvgl `point_t` object initialized to point (0,0).
+* Function `getCenter(obj)` that calculates the center of the lvgl  object `obj`. Returns a lvgl `point_t`. Could move to `base.py`
+* `pt0` an lvgl `point_t` object initialized to point (0,0). Same as above.
 
 ## The examples
 
