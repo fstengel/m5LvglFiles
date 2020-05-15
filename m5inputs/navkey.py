@@ -16,6 +16,34 @@ MOD = MAX-MIN+1
 # Hardcoded for now.
 keyDict = {UP: lv.KEY.UP, DN: lv.KEY.DOWN, LT: lv.KEY.LEFT, RT: lv.KEY.RIGHT, CTR: lv.KEY.ENTER}
 
+# Class that makes a I2CNavKey a hybrid inout device in lvgl.
+# WIP!
+#
+# NavKey(i2c, [addr = navAddr], [debug=False])
+# creates an object managing navkey at address adr on i2c bus i2c.
+# i2c: an I2C object describing the bus
+# addr: address of the navkey. By default navAddr=CONST(0x10)
+# debug: flag for... debugging.
+#
+# Methods:
+# update(): does the work. Polls the i2c navkey, checks the keys, calculates the current difference and sees if anything has changed.
+# @property diff: the diff sent by the encoder. The higher step is, the longer one has to press A/C to move.
+# @property keyPressed: if a key is pressed
+# @property pressed: if the encoder key (key CTR) is pressed
+# @property keyChanged: some key changed
+# @property encoderChanged: something recently changed in encoder: a move, pressed
+# getKeyReader(): returns the callback used to register the keys device. It is seen by lvgl as a keypad.
+# registerKeyDriver(): registers the keypad device associated with the navkey
+# getKeyDriver(): returns the registered keypad driver
+# getEncoderReader(): returns the callback used to register the encoder device. It is sen by lvgl as an encoder.
+# registerEncoderDriver(): registers the encoder device associated with the navkey
+# getEncoderDriver(): returns the registered encoder driver
+# @property keyGroup:
+# keyGroup.setter: getter/setter for the group associated with the keypad device
+# @property encoderGroup:
+# encoderGroup.setter: getter/setter for the group associated with the encoder device
+#
+
 # Should not really be derived from Base device: only pressed is used !
 class NavKey(BaseDevice):
     def __init__(self, i2c, addr = navAddr, debug = False):
@@ -23,13 +51,14 @@ class NavKey(BaseDevice):
         self._addr = addr
         self._debug = debug
         self._pressed = False
+        self._keyPressed = False
         self._keyChanged = False
         self._encChanged = False
         self._key = 0
         self._enc = 0
         self._diff = 0
         self._nav = I2CNavKey(i2c, addr, debug)
-        self._nav.setBounds(MIN, MAX, STEP)
+        self._nav.setEncoderBounds(MIN, MAX, STEP)
         self._encDriver = None
         self._keyDriver = None
     
@@ -37,15 +66,22 @@ class NavKey(BaseDevice):
         st = self._nav.getStatus()
         ke = self._nav.keyEvent()
         ee = self._nav.encoderEvent()
+        # Logic to evolve
+        # One might want to add flags to tell what to do with the centre key
+        # is that key sending an encoder event, key event or both?
+        # For the time beign, it is hardcoded as both...
         if ke[0]:
             ev = ke[1]
-            if self._key!=ev[0] or self._pressed!=ev[1]:
+            if self._key!=ev[0] or self._keyPressed!=ev[1]:
+                if ev[0]==CTR:
+                    self._pressed = ev[1]
                 self._keyChanged = True
                 self._key = ev[0]
-                self._pressed = ev[1]
+                self._keyPressed = ev[1]
         if ee[0]:
             ev = ee[1]
             enc = self._nav.getEncoder()
+            d = 0
             if enc != self._enc:
                 d = enc-self._enc
                 if st[MAXMIN] is True:
@@ -63,6 +99,10 @@ class NavKey(BaseDevice):
         return di
     
     @property
+    def keyPressed(self):
+        return self._keyPressed
+    
+    @property
     def keyChanged(self):
         ch = self._keyChanged
         self._keyChanged = False
@@ -77,7 +117,7 @@ class NavKey(BaseDevice):
     def _keyReader(self, drv, data):
         self.update()
         data.key = keyDict[self._key]
-        if self.pressed:
+        if self.keyPressed:
             data.state = lv.INDEV_STATE.PR
         else:
             data.state = lv.INDEV_STATE.REL
@@ -92,7 +132,7 @@ class NavKey(BaseDevice):
             data.state = lv.INDEV_STATE.PR
         else:
             data.state = lv.INDEV_STATE.REL
-        if self._debug and self.encChanged:
+        if self._debug and self.encoderChanged:
             print("Encoder reader : [{}] diff: {} enc: {}, state: {}".format(self, data.enc_diff, self._enc, data.state))
         return False
         

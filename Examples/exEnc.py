@@ -50,7 +50,6 @@ lv.scr_load(scr)
 # ButtonEncoder
 # step set at 5. Try with 7-10 to see how long one has to press (loooooonger)
 enc = M5ButtonEncoder(step = 5, debug = True)
-driv = enc.registerDriver()
 
 # register the device driver:
 enc.registerDriver()

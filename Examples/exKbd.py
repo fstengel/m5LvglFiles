@@ -60,7 +60,6 @@ tB = KeyButton(BUTTON_B_PIN, keyboard = kbd, key = lv.KEY.ENTER, debug= True)
 tC = KeyButton(BUTTON_C_PIN, keyboard = kbd, key = lv.KEY.NEXT, debug= True)
 
 # register the device driver:
-
 kbd.registerDriver()
 
 # Create a group

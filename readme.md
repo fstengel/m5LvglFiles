@@ -46,11 +46,14 @@ The list `sys.path` contains the folders that will be explored by microPython to
 
 ## Usage
 
-`from m5inputs.m5encoder import M5ButtonEncoder`
-`from m5inputs.keypad  import KeyButton, Keypad`
-`from m5inputs.m5buttons immport M5Buttons`
+```Python
+from m5inputs.m5encoder import M5ButtonEncoder
+from m5inputs.keypad  import KeyButton, Keypad
+from m5inputs.m5buttons immport M5Buttons
+from m5inputs.navkey import NavKey
+```
 
-See the `exKbd`, `exEnc` and `exBtn` scripts for examples
+See the `exKbd`, `exEnc`, `exBtn` and `exNav` (TBD) scripts for examples
 
 ## The `base` package
 
@@ -60,7 +63,7 @@ Contains classes `PCNTButton` and `BaseDevice`
 
 A class that uses the pulse counter to read an IO. It only works by polling. No IRQ/ISR !
 
-* `PCNTButton(pinN, [unit = None])`: watches pin number `pinN` and uses PCNT unit `unit`. if `unit==None`,
+`PCNTButton(pinN, [unit = None])`: watches pin number `pinN` and uses PCNT unit `unit`. if `unit==None`,
 automatically allocates a PCNT unit.
 
 Methods:
@@ -81,7 +84,9 @@ TBD:
 Class creating a generic input device and associated driver.
 This class is mainly virtual.
 
-* `BaseDevice([debug = False])`: creates a base input device. `debug`: flag for debugging.
+`BaseDevice([debug = False])`: creates a base input device.
+
+- `debug`: flag for debugging.
 
 Methods:
 
@@ -122,7 +127,7 @@ Declares the `KeyButton` and `Keypad` classes.
 
 Class to simulate a key press using a physical button (aka DigitalInput). Beware, this can only be used for polling. No IRQ/ISR.
 
-* `KeyButton(pinN, [keyboard = None], [key = None], [unit = None], [debug = False])`: 
+`KeyButton(pinN, [keyboard = None], [key = None], [unit = None], [debug = False])`: 
 watches pin number `pinN` and sends `key` to `keyboard` if not `None`. `unit` is the PCNT
 unit (if `None`, automatically allocated) and `debug` is a flag for debug messages.
 
@@ -135,7 +140,9 @@ Methods:
 
 Class making a keyboard input device and driver
 
-`Keypad([debug = False])`: creates a keyboard/keypad input device. `debug`: flag for debugging.
+`Keypad([debug = False])`: creates a keyboard/keypad input device.
+
+- `debug`: flag for debugging.
 
 Methods:
 
@@ -171,7 +178,8 @@ Class making a encoder input device using the M5Stack's buttons as:
 
 `M5ButtonEncoder([step = 3], [debug = False])`:
 creates a button encoder input device. `step`: number of times a key has to be seen by the reading loop in order to register as a move. This slows down the movement.
-`debug`: flag for debugging.
+
+- `debug`: flag for debugging.
 
 Methods:
 
@@ -201,7 +209,9 @@ Declares the `M5Buttons` class. This is still a WIP
 
 Class managing the buttons for the M5Stack. WIP.
 
-`M5Buttons([debug = False])`: Creates a device+driver to manage the buttons of an M5Stack. `debug`: flag for... debugging.
+`M5Buttons([debug = False])`: Creates a device+driver to manage the buttons of an M5Stack.
+
+- `debug`: flag for... debugging.
 
 Methods:
 
@@ -233,6 +243,80 @@ Among others:
 * Function `getCenter(obj)` that calculates the center of the lvgl  object `obj`. Returns a lvgl `point_t`. Could move to `base.py`
 * `pt0` an lvgl `point_t` object initialized to point (0,0). Same as above.
 
+## The navkey. WIP
+
+It is in two classes: I2CNavKey in i2cnavkey and NavKey in navkey
+
+### Class `I2CNavKey`
+
+ Class that attempts to manage this navkey: [https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus](https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus)
+ No IRQs or some such. Only polling...
+ WIP!
+
+ `I2CNavKey(i2c, [addr = navAddr], [debug=False])`: creates an object managing navkey at address `adr` on i2c bus `i2c`.
+ 
+ * `i2c`: an I2C object describing the bus
+ * `addr``: address of the navkey. By default `navAddr=CONST(0x10)`.`
+ * `debug`: flag for... debugging.
+
+Methods:
+ 
+ * `resetNavkey()`: resets the navkey. sleeps for 400us in order to wait for the restart. TBD: add a flag to forego the sleep
+ * `initNavKey()`: initializes/configures the navkey. Starts by resetting it... The encoder is set to wrap. TBD add a flags argument to enhance configuration.
+ * `setEcoderBounds([min = -5], [max = 5], [step = 1])`: stets the minimum, maximum bound and the step for the encoder.
+ * `updateStatus()`: reads the status registe and updates the various flags
+ * `getStatus()`: updates the status and returns it  as a list of:
+     - `True`: pressed,
+	 - `False`: released,
+	 - `None`: untouched since last poll.
+ * `getEncoder()`: gets the encoder value as a signed integer
+ * `keyEvent()`: gets the last key event as a tuple `(bool, obj)`. Two forms
+    - `(False, None)`: if there was no new event,
+	- `(True, (key, bool))` where `key` is the key code and `bool` is `True` iff the key is pressed.
+ * `encoderEvent()`: gets the last encoder event as a tuple `(bool, obj)`. Two forms
+     `(False, None)` if there was no new event,
+     `(True, (nat, bool))` where nat is the code (either rotation or bounds touched) and `bool` is `True` depending on the nature (see datasheet).
+ 
+ There are quite a few other internals dealing with i2c communication and reading/writing 1,2 or 4 bytes from/to a register.
+ 
+
+### Class `NavKey` part of the `navkey`package
+ 
+ part of the navkey package.
+
+ Class that makes a I2CNavKey a hybrid input device in lvgl.
+ WIP!
+
+ `NavKey(i2c, [addr = navAddr], [debug=False])`: creates an object managing navkey at address `adr` on i2c bus `i2c`.
+ 
+- `i2c`: an I2C object describing the bus
+- `addr`: address of the navkey. By default `navAddr=CONST(0x10)`
+- `debug`: flag for... debugging.
+
+Methods:
+ 
+* `update()`: does the work. Polls the i2c navkey, checks the keys, calculates the current difference and sees if anything has changed.
+* `property diff`: the diff sent by the encoder. The higher step is, the longer one has to press A/C to move.
+* `@property keyPressed`: if a key is pressed
+* `@property pressed`: if the encoder key (key CTR) is pressed
+* `@property keyChanged`: some key changed
+* `@property encoderChanged`: something recently changed in encoder: a move, pressed
+* `getKeyReader()`: returns the callback used to register the keys device. It is seen by lvgl as a keypad.
+* `registerKeyDriver()`: registers the keypad device associated with the navkey
+* `getKeyDriver()`: returns the registered keypad driver
+* `getEncoderReader()`: returns the callback used to register the encoder device. It is sen by lvgl as an encoder.
+* `registerEncoderDriver()`: registers the encoder device associated with the navkey
+* `getEncoderDriver()`: returns the registered encoder driver
+* `@property keyGroup`:
+* `keyGroup.setter`: getter/setter for the group associated with the keypad device
+* `@property encoderGroup`:
+* `encoderGroup.setter`: getter/setter for the group associated with the encoder device
+
+TBD
+
+* a way to remap the keys on the fly. Possible interface: `setKey(navKey, lvglKeyCode)`. Almost hard coded for now
+* find a way to have only the keypad or encoder to handle the CTR button.
+
 ## The examples
 
 ### `exBtn`, `exEnc` and `exKbd`
@@ -244,10 +328,9 @@ All based on the same script: four buttons labelled 1 to 4 on the top of the scr
 
 The relevant bits of code are in the last dozen lines of code.
 
-## Coming next
+### `exNav`
 
-### i2cnavkey and navkey
+TBD. Will show the use of the navkey...
 
-A pair of classes (`I2CNavKey` and `NavKey`) to (partly) manage this navkey https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus. Very WIP. Not documented nor tested. `I2CNavKey` is generic and is used to get/send info to the navkey. `NavKey` will be a hybrid input device in lvgl. Will be (re)packaged
 
 

@@ -29,6 +29,10 @@ class KeyButton(object):
     def key(self):
         return self._key
     
+    @key.setter
+    def key(self, k):
+        self._key = k
+
     @property
     def pressed(self):
         self._pressed = self._cntB.pressed
@@ -85,7 +89,7 @@ class Keypad(BaseDevice):
     @property
     def currentKey(self):
         return self._key
-
+    
     # Override
     def _reader(self, drv, data):
         self.update()

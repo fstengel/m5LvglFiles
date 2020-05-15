@@ -4,6 +4,7 @@ import utime
 
 import ustruct
 
+# The base address of the navkey : no soldered pads.
 navAddr = const(0x10)
 
 # registers
@@ -59,9 +60,34 @@ def triVal(pr, re):
     else:
         return None
 
+# Class that attempts to manage this navkey: https://www.tindie.com/products/saimon/i2c-navkey-7-functions-joypad-on-the-i2c-bus
+# No IRQs or some sutch. Only polling...
+# WIP!
 #
+# I2CNavKey(i2c, [addr = navAddr], [debug=False])
+# creates an object managing navkey at address adr on i2c bus i2c.
+# i2c: an I2C object describing the bus
+# addr: address of the navkey. By default navAddr=CONST(0x10)
+# debug: flag for... debugging.
 #
-#
+# Methods:
+# resetNavkey(): resets the navkey. sleeps for 400us in order to wait for the restart. TBD: add a flag to forego the sleep
+# initNavKey(): initializes the navkey. Starts by resetting it... The encoder is set to wrap.
+# setEcoderBounds([min = -5], [max = 5], [step = 1]): stets the minimum, maximum bound and the step for the encoder.
+# updateStatus(): reads the status registe and updates the various flags
+# getStatus(): updates the status and returns it  as a list of:
+#     True (pressed), False (released), None (untouched since last poll)
+# getEncoder(): gets the encoder value as a signed integer
+# keyEvent(): gets the last key event as a tuple (bool, obj). Two forms
+#     (False, None) if there was no new event,
+#     (True, (key, bool)) where key is the key code and bool is True iff the key is pressed.
+# encoderEvent(): gets the last encoder event as a tuple (bool, obj). Two forms
+#     (False, None) if there was no new event,
+#     (True, (nat, bool)) where nat is the code (either rotation or bounds touched) and bool is True depending on the nature (see datasheet).
+# 
+# There are quite a few other internals dealing with i2c communication and reading/writing 1,2 or 4 bytes from/to a register.
+
+
 class I2CNavKey(object):
     def __init__(self, i2c, addr = navAddr, debug = False):
         self._i2c = i2c
@@ -159,7 +185,7 @@ class I2CNavKey(object):
                 return (True, (k, st)) 
         return (False, None)
         
-    def getEncoder(self):
-        a = self.read4(self._addr, rCVal)
-        self._enc = a
-        return a
+#     def getEncoder(self):
+#         a = self.read4(self._addr, rCVal)
+#         self._enc = a
+#         return a
